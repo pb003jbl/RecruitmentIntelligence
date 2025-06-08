@@ -7,6 +7,9 @@ import numpy as np
 from datetime import datetime, timedelta
 import io
 import warnings
+import os
+import requests
+import json
 warnings.filterwarnings('ignore')
 
 from data_processor import DataProcessor
@@ -20,6 +23,140 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Enhanced CSS for professional styling
+st.markdown("""
+<style>
+    .main > div {
+        padding-top: 1rem;
+    }
+    
+    .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1rem;
+        border-radius: 12px;
+        color: white;
+        text-align: center;
+        margin: 0.5rem 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+    }
+    
+    .metric-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    .dashboard-header {
+        background: linear-gradient(90deg, #1B365D 0%, #4A90E2 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        color: white;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    .section-header {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #4A90E2;
+        margin: 1rem 0;
+    }
+    
+    .filter-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+    
+    .chat-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        margin: 1rem 0;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .sample-question {
+        background: #f0f8ff;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        margin: 0.25rem;
+        cursor: pointer;
+        border: 1px solid #4A90E2;
+        color: #1B365D;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    .sample-question:hover {
+        background: #4A90E2;
+        color: white;
+    }
+    
+    .chat-message {
+        padding: 1rem;
+        margin: 0.5rem 0;
+        border-radius: 8px;
+    }
+    
+    .user-message {
+        background: #e3f2fd;
+        border-left: 4px solid #2196f3;
+    }
+    
+    .bot-message {
+        background: #f1f8e9;
+        border-left: 4px solid #4caf50;
+    }
+    
+    .stSelectbox > div > div {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .stMetric {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .alert-warning {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+        color: #856404;
+    }
+    
+    .alert-success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+        color: #155724;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Initialize data processor
 @st.cache_data
@@ -41,18 +178,121 @@ def load_data():
         df = sample_generator.generate_comprehensive_data()
         return df, True
 
+# Groq API Integration
+class GroqChatbot:
+    def __init__(self):
+        self.api_key = os.getenv("GROQ_API_KEY")
+        self.base_url = "https://api.groq.com/openai/v1/chat/completions"
+        
+    def generate_response(self, question, context_data=None):
+        if not self.api_key:
+            return "⚠️ Please configure your Groq API key to use the chatbot functionality."
+        
+        # Create context from the recruitment data
+        context = ""
+        if context_data is not None and not context_data.empty:
+            total_records = len(context_data)
+            total_consultants = context_data['Consultant_Name'].nunique()
+            active_jobs = len(context_data[context_data['Job_Status'] == 'Active'])
+            total_placements = len(context_data[context_data['Placement_Date'].notna()])
+            avg_billing = context_data['Billing_Value'].mean()
+            
+            context = f"""
+            Current recruitment data context:
+            - Total records: {total_records}
+            - Total consultants: {total_consultants}
+            - Active jobs: {active_jobs}
+            - Total placements: {total_placements}
+            - Average billing value: ${avg_billing:,.0f}
+            """
+        
+        system_prompt = f"""You are a recruitment analytics expert assistant. You help analyze recruitment data and provide insights about hiring metrics, consultant performance, and business trends.
+        
+        {context}
+        
+        Please provide helpful, data-driven responses about recruitment analytics, KPIs, and insights. Keep responses concise and professional."""
+        
+        try:
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            }
+            
+            payload = {
+                "model": "mixtral-8x7b-32768",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": question}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 1024
+            }
+            
+            response = requests.post(self.base_url, headers=headers, json=payload)
+            
+            if response.status_code == 200:
+                result = response.json()
+                return result['choices'][0]['message']['content']
+            else:
+                return f"Error: {response.status_code} - {response.text}"
+                
+        except Exception as e:
+            return f"Error connecting to Groq API: {str(e)}"
+
+# Initialize chatbot
+chatbot = GroqChatbot()
+
+# Sample questions for the chatbot
+SAMPLE_QUESTIONS = [
+    "What are the key metrics I should focus on for recruitment success?",
+    "How can I improve my consultant conversion rates?",
+    "What factors influence time-to-hire in recruitment?",
+    "How do I identify high-potential job opportunities?",
+    "What are best practices for client relationship management?",
+    "How can I optimize my recruitment pipeline?",
+    "What metrics indicate consultant performance?",
+    "How do market trends affect billing values?",
+    "What are red flags in recruitment data?",
+    "How can I improve interview-to-offer conversion?"
+]
+
 # Load data
 df, is_sample_data = load_data()
 
 # Main dashboard
 def main():
-    # Header
-    st.title("🎯 Recruitment Analytics Dashboard")
-    if is_sample_data:
-        st.caption("*Currently displaying sample data for demonstration*")
+    # Professional Header
+    st.markdown("""
+    <div class="dashboard-header">
+        <h1>🎯 Recruitment Analytics Dashboard</h1>
+        <p>Enterprise-grade insights for recruitment agencies</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Sidebar filters
-    st.sidebar.header("🔍 Filters")
+    if is_sample_data:
+        st.markdown("""
+        <div class="alert-warning">
+            <strong>Demo Mode:</strong> Currently displaying sample data for demonstration purposes.
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Navigation tabs
+    tab1, tab2 = st.tabs(["📊 Analytics Dashboard", "🤖 AI Assistant"])
+    
+    with tab1:
+        render_analytics_dashboard()
+    
+    with tab2:
+        render_chatbot_interface()
+
+def render_analytics_dashboard():
+    # Sidebar filters with professional styling
+    with st.sidebar:
+        st.markdown("""
+        <div class="filter-container">
+            <h3>🔍 Analytics Filters</h3>
+        </div>
+        """, unsafe_allow_html=True)
     
     # Filter options
     countries = ['All'] + sorted(df['Country'].dropna().unique().tolist())
@@ -309,6 +549,128 @@ def main():
                 )
         else:
             st.info("No data available for export with selected filters")
+
+def render_chatbot_interface():
+    """Render the AI chatbot interface"""
+    st.markdown("""
+    <div class="section-header">
+        <h2>🤖 AI Recruitment Assistant</h2>
+        <p>Ask questions about recruitment analytics, best practices, and insights</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Check for API key
+    if not os.getenv("GROQ_API_KEY"):
+        st.markdown("""
+        <div class="alert-warning">
+            <strong>API Key Required:</strong> Please configure your Groq API key to use the AI assistant.
+            <br><br>
+            <strong>How to set up:</strong>
+            <ol>
+                <li>Get your free API key from <a href="https://console.groq.com" target="_blank">Groq Console</a></li>
+                <li>Add it as a secret named 'GROQ_API_KEY' in your Replit environment</li>
+                <li>Restart the application</li>
+            </ol>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Sample questions section
+    st.markdown("""
+    <div class="chat-container">
+        <h4>💡 Sample Questions</h4>
+        <p>Click on any question below to get started:</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Display sample questions in a grid
+    cols = st.columns(2)
+    for i, question in enumerate(SAMPLE_QUESTIONS):
+        with cols[i % 2]:
+            if st.button(question, key=f"sample_q_{i}", use_container_width=True):
+                if 'chat_history' not in st.session_state:
+                    st.session_state.chat_history = []
+                
+                # Add user question to chat history
+                st.session_state.chat_history.append({"role": "user", "content": question})
+                
+                # Get AI response
+                with st.spinner("Thinking..."):
+                    response = chatbot.generate_response(question, df)
+                    st.session_state.chat_history.append({"role": "assistant", "content": response})
+                
+                st.rerun()
+    
+    st.divider()
+    
+    # Chat interface
+    st.markdown("""
+    <div class="chat-container">
+        <h4>💬 Chat with AI Assistant</h4>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Initialize chat history
+    if 'chat_history' not in st.session_state:
+        st.session_state.chat_history = []
+    
+    # Display chat history
+    if st.session_state.chat_history:
+        for message in st.session_state.chat_history:
+            if message["role"] == "user":
+                st.markdown(f"""
+                <div class="chat-message user-message">
+                    <strong>You:</strong> {message["content"]}
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                <div class="chat-message bot-message">
+                    <strong>AI Assistant:</strong> {message["content"]}
+                </div>
+                """, unsafe_allow_html=True)
+    
+    # Chat input
+    user_question = st.text_input("Ask a question about recruitment analytics:", 
+                                 placeholder="e.g., How can I improve my conversion rates?",
+                                 key="chat_input")
+    
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        if st.button("Send", type="primary", use_container_width=True):
+            if user_question.strip():
+                # Add user question to chat history
+                st.session_state.chat_history.append({"role": "user", "content": user_question})
+                
+                # Get AI response
+                with st.spinner("Generating response..."):
+                    response = chatbot.generate_response(user_question, df)
+                    st.session_state.chat_history.append({"role": "assistant", "content": response})
+                
+                st.rerun()
+    
+    with col2:
+        if st.button("Clear Chat", use_container_width=True):
+            st.session_state.chat_history = []
+            st.rerun()
+    
+    # Analytics context section
+    if not df.empty:
+        st.markdown("""
+        <div class="section-header">
+            <h4>📊 Current Data Context</h4>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        context_col1, context_col2, context_col3, context_col4 = st.columns(4)
+        
+        with context_col1:
+            st.metric("Total Records", len(df))
+        with context_col2:
+            st.metric("Consultants", df['Consultant_Name'].nunique())
+        with context_col3:
+            st.metric("Active Jobs", len(df[df['Job_Status'] == 'Active']))
+        with context_col4:
+            st.metric("Placements", len(df[df['Placement_Date'].notna()]))
 
 if __name__ == "__main__":
     main()
