@@ -354,6 +354,320 @@ st.markdown("""
         transform: translateY(0);
     }
     
+    /* Enhanced Chatbot Styling */
+    .chatbot-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        border-radius: 20px;
+        color: white;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .chatbot-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        pointer-events: none;
+    }
+    
+    .chatbot-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .chatbot-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+    
+    .main-chat-container {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 16px;
+        padding: 0;
+        margin-bottom: 1rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.5);
+        overflow: hidden;
+    }
+    
+    .chat-window-header {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        padding: 1rem 1.5rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .status-indicator {
+        width: 10px;
+        height: 10px;
+        background: #22c55e;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+    
+    .chat-actions {
+        margin-left: auto;
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+    
+    .welcome-message {
+        padding: 2rem;
+        display: flex;
+        gap: 1.5rem;
+        align-items: flex-start;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border-radius: 12px;
+        margin: 1rem;
+        border-left: 4px solid #0ea5e9;
+    }
+    
+    .bot-avatar {
+        font-size: 2.5rem;
+        min-width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .welcome-content h3 {
+        color: #1e293b;
+        margin-bottom: 1rem;
+        font-size: 1.4rem;
+    }
+    
+    .welcome-content p {
+        color: #475569;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+    
+    .welcome-content ul {
+        color: #475569;
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .welcome-content li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .chat-messages-container {
+        max-height: 500px;
+        overflow-y: auto;
+        padding: 1rem;
+        background: #ffffff;
+    }
+    
+    .message-row {
+        display: flex;
+        margin-bottom: 1.5rem;
+        align-items: flex-end;
+        gap: 0.75rem;
+    }
+    
+    .user-row {
+        justify-content: flex-end;
+    }
+    
+    .bot-row {
+        justify-content: flex-start;
+    }
+    
+    .user-message-bubble {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 1.25rem;
+        border-radius: 18px 18px 4px 18px;
+        max-width: 70%;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        position: relative;
+    }
+    
+    .user-message-bubble::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: -8px;
+        width: 0;
+        height: 0;
+        border: 8px solid transparent;
+        border-left-color: #764ba2;
+        border-bottom: none;
+        border-top-left-radius: 4px;
+    }
+    
+    .bot-message-bubble {
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        color: #1e293b;
+        padding: 1rem 1.25rem;
+        border-radius: 18px 18px 18px 4px;
+        max-width: 70%;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        position: relative;
+    }
+    
+    .bot-message-bubble::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: -8px;
+        width: 0;
+        height: 0;
+        border: 8px solid transparent;
+        border-right-color: #f1f5f9;
+        border-bottom: none;
+        border-top-right-radius: 4px;
+    }
+    
+    .bot-name {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .bot-name::before {
+        content: '🤖';
+        font-size: 0.9rem;
+    }
+    
+    .message-content {
+        line-height: 1.6;
+        word-wrap: break-word;
+    }
+    
+    .message-time {
+        font-size: 0.7rem;
+        opacity: 0.6;
+        margin-top: 0.5rem;
+        text-align: right;
+    }
+    
+    .bot-message-bubble .message-time {
+        text-align: left;
+    }
+    
+    .user-avatar {
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        flex-shrink: 0;
+    }
+    
+    .bot-avatar {
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        flex-shrink: 0;
+    }
+    
+    .chat-input-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 1rem;
+        border-radius: 12px;
+        margin: 1rem 0;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+    
+    .input-header {
+        margin-bottom: 0.75rem;
+        font-weight: 500;
+        color: #475569;
+        font-size: 0.9rem;
+    }
+    
+    .suggestions-grid {
+        display: grid;
+        gap: 0.75rem;
+        margin: 1rem 0;
+    }
+    
+    .data-context-sidebar {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(14, 165, 233, 0.2);
+    }
+    
+    .data-context-sidebar h4 {
+        color: #0c4a6e;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .data-context-sidebar p {
+        color: #075985;
+        font-size: 0.85rem;
+        margin: 0;
+        opacity: 0.8;
+    }
+    
+    .chat-stats {
+        background: rgba(102, 126, 234, 0.1);
+        padding: 0.5rem;
+        border-radius: 6px;
+        margin-top: 1rem;
+        text-align: center;
+    }
+    
+    /* Scrollbar for chat messages */
+    .chat-messages-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .chat-messages-container::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 3px;
+    }
+    
+    .chat-messages-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+        border-radius: 3px;
+    }
+    
+    .chat-messages-container::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #94a3b8, #64748b);
+    }
+    
     /* Enhanced alerts */
     .alert-warning {
         background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 50%);
@@ -1124,9 +1438,9 @@ def render_analytics_dashboard():
 def render_chatbot_interface():
     """Render the AI chatbot interface"""
     st.markdown("""
-    <div class="section-header">
-        <h2>🤖 AI Recruitment Assistant</h2>
-        <p>Ask questions about recruitment analytics, best practices, and insights</p>
+    <div class="chatbot-header">
+        <h1>🤖 AI Recruitment Assistant</h1>
+        <p>Your intelligent companion for recruitment analytics insights</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1134,9 +1448,9 @@ def render_chatbot_interface():
     if not os.getenv("GROQ_API_KEY"):
         st.markdown("""
         <div class="alert-warning">
-            <strong>API Key Required:</strong> Please configure your Groq API key to use the AI assistant.
+            <strong>⚠️ API Key Required:</strong> Configure your Groq API key to enable AI chat functionality.
             <br><br>
-            <strong>How to set up:</strong>
+            <strong>Setup Instructions:</strong>
             <ol>
                 <li>Get your free API key from <a href="https://console.groq.com" target="_blank">Groq Console</a></li>
                 <li>Add it as a secret named 'GROQ_API_KEY' in your Replit environment</li>
@@ -1144,108 +1458,173 @@ def render_chatbot_interface():
             </ol>
         </div>
         """, unsafe_allow_html=True)
-    
-    # Sample questions section
-    st.markdown("""
-    <div class="chat-container">
-        <h4>💡 Sample Questions</h4>
-        <p>Click on any question below to get started:</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Display sample questions in a grid
-    cols = st.columns(2)
-    for i, question in enumerate(SAMPLE_QUESTIONS):
-        with cols[i % 2]:
-            if st.button(question, key=f"sample_q_{i}", use_container_width=True):
-                if 'chat_history' not in st.session_state:
-                    st.session_state.chat_history = []
-                
-                # Add user question to chat history
-                st.session_state.chat_history.append({"role": "user", "content": question})
-                
-                # Get AI response with enhanced loading
-                with st.spinner("🤖 AI is analyzing your data..."):
-                    progress_bar = st.progress(0)
-                    for i in range(100):
-                        progress_bar.progress(i + 1)
-                    response = chatbot.generate_response(question, df)
-                    st.session_state.chat_history.append({"role": "assistant", "content": response})
-                    progress_bar.empty()
-                
-                st.rerun()
-    
-    st.divider()
-    
-    # Chat interface
-    st.markdown("""
-    <div class="chat-container">
-        <h4>💬 Chat with AI Assistant</h4>
-    </div>
-    """, unsafe_allow_html=True)
+        return
     
     # Initialize chat history
     if 'chat_history' not in st.session_state:
         st.session_state.chat_history = []
     
-    # Display chat history
-    if st.session_state.chat_history:
-        for message in st.session_state.chat_history:
-            if message["role"] == "user":
-                st.markdown(f"""
-                <div class="chat-message user-message">
-                    <strong>You:</strong> {message["content"]}
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div class="chat-message bot-message">
-                    <strong>AI Assistant:</strong> {message["content"]}
-                </div>
-                """, unsafe_allow_html=True)
+    # Create main chat container
+    st.markdown("""
+    <div class="main-chat-container">
+        <div class="chat-window-header">
+            <div class="status-indicator"></div>
+            <span>AI Assistant Online</span>
+            <div class="chat-actions">
+                💬 Chat • 📊 Analytics Ready
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Chat input
-    user_question = st.text_input("Ask a question about recruitment analytics:", 
-                                 placeholder="e.g., How can I improve my conversion rates?",
-                                 key="chat_input")
+    # Chat messages container with fixed height and scroll
+    chat_container = st.container()
+    with chat_container:
+        if not st.session_state.chat_history:
+            # Welcome message when chat is empty
+            st.markdown("""
+            <div class="welcome-message">
+                <div class="bot-avatar">🤖</div>
+                <div class="welcome-content">
+                    <h3>Welcome to your AI Recruitment Assistant!</h3>
+                    <p>I'm here to help you analyze recruitment data, identify trends, and provide actionable insights. 
+                    You can ask me about:</p>
+                    <ul>
+                        <li>📈 Performance metrics and KPIs</li>
+                        <li>🌍 Geographical performance analysis</li>
+                        <li>👥 Consultant and team insights</li>
+                        <li>💰 Revenue and billing analysis</li>
+                        <li>🎯 Conversion rate optimization</li>
+                    </ul>
+                    <p><strong>Try one of the suggested questions below or type your own!</strong></p>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Display chat history in proper chat bubble format
+        if st.session_state.chat_history:
+            st.markdown('<div class="chat-messages-container">', unsafe_allow_html=True)
+            
+            for i, message in enumerate(st.session_state.chat_history):
+                if message["role"] == "user":
+                    st.markdown(f"""
+                    <div class="message-row user-row">
+                        <div class="user-message-bubble">
+                            <div class="message-content">{message["content"]}</div>
+                            <div class="message-time">Just now</div>
+                        </div>
+                        <div class="user-avatar">👤</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""
+                    <div class="message-row bot-row">
+                        <div class="bot-avatar">🤖</div>
+                        <div class="bot-message-bubble">
+                            <div class="bot-name">AI Assistant</div>
+                            <div class="message-content">{message["content"]}</div>
+                            <div class="message-time">Just now</div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            st.markdown('</div>', unsafe_allow_html=True)
     
-    col1, col2 = st.columns([1, 4])
+    # Sample questions section (collapsible)
+    with st.expander("💡 Suggested Questions", expanded=not bool(st.session_state.chat_history)):
+        st.markdown("""
+        <div class="suggestions-grid">
+        """, unsafe_allow_html=True)
+        
+        # Display sample questions in a more compact grid
+        cols = st.columns(3)
+        for i, question in enumerate(SAMPLE_QUESTIONS[:9]):  # Show first 9 questions
+            with cols[i % 3]:
+                if st.button(question, key=f"sample_q_{i}", use_container_width=True, help="Click to ask this question"):
+                    # Add user question to chat history
+                    st.session_state.chat_history.append({"role": "user", "content": question})
+                    
+                    # Get AI response with enhanced loading
+                    with st.spinner("🧠 AI is thinking..."):
+                        response = chatbot.generate_response(question, df)
+                        st.session_state.chat_history.append({"role": "assistant", "content": response})
+                    
+                    st.rerun()
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Chat input section (fixed at bottom)
+    st.markdown("""
+    <div class="chat-input-section">
+        <div class="input-header">
+            <span>💬 Ask me anything about your recruitment data</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Input controls
+    col1, col2, col3 = st.columns([6, 1, 1])
+    
     with col1:
-        if st.button("Send", type="primary", use_container_width=True):
-            if user_question.strip():
-                # Add user question to chat history
-                st.session_state.chat_history.append({"role": "user", "content": user_question})
-                
-                # Get AI response
-                with st.spinner("Generating response..."):
-                    response = chatbot.generate_response(user_question, df)
-                    st.session_state.chat_history.append({"role": "assistant", "content": response})
-                
-                st.rerun()
+        user_question = st.text_input(
+            "", 
+            placeholder="Type your question here... (e.g., 'What's our conversion rate by city?')",
+            key="chat_input",
+            label_visibility="collapsed"
+        )
     
     with col2:
-        if st.button("Clear Chat", use_container_width=True):
-            st.session_state.chat_history = []
-            st.rerun()
+        send_button = st.button("📤 Send", type="primary", use_container_width=True)
     
-    # Analytics context section
-    if not df.empty:
+    with col3:
+        clear_button = st.button("🗑️ Clear", use_container_width=True)
+    
+    # Handle send button
+    if send_button and user_question.strip():
+        # Add user question to chat history
+        st.session_state.chat_history.append({"role": "user", "content": user_question})
+        
+        # Get AI response
+        with st.spinner("🤖 Generating response..."):
+            response = chatbot.generate_response(user_question, df)
+            st.session_state.chat_history.append({"role": "assistant", "content": response})
+        
+        # Clear input and rerun
+        st.session_state.chat_input = ""
+        st.rerun()
+    
+    # Handle clear button
+    if clear_button:
+        st.session_state.chat_history = []
+        st.rerun()
+    
+    # Data context sidebar
+    with st.sidebar:
         st.markdown("""
-        <div class="section-header">
-            <h4>📊 Current Data Context</h4>
+        <div class="data-context-sidebar">
+            <h4>📊 Data Context</h4>
+            <p>Current dataset information</p>
         </div>
         """, unsafe_allow_html=True)
         
-        context_col1, context_col2, context_col3, context_col4 = st.columns(4)
-        
-        with context_col1:
-            st.metric("Total Records", len(df))
-        with context_col2:
-            st.metric("Consultants", df['Consultant_Name'].nunique())
-        with context_col3:
-            st.metric("Active Jobs", len(df[df['Job_Status'] == 'Active']))
-        with context_col4:
-            st.metric("Placements", len(df[df['Placement_Date'].notna()]))
+        if not df.empty:
+            context_col1, context_col2 = st.columns(2)
+            
+            with context_col1:
+                st.metric("📋 Records", len(df))
+                st.metric("👥 Consultants", df['Consultant_Name'].nunique())
+            
+            with context_col2:
+                st.metric("🔥 Active Jobs", len(df[df['Job_Status'] == 'Active']))
+                st.metric("✅ Placements", len(df[df['Placement_Date'].notna()]))
+            
+            # Quick stats
+            if len(st.session_state.chat_history) > 0:
+                st.markdown(f"""
+                <div class="chat-stats">
+                    <small>💬 {len(st.session_state.chat_history)//2} conversations</small>
+                </div>
+                """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
