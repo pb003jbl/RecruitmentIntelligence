@@ -24,136 +24,425 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Enhanced CSS for professional styling
+# Enhanced CSS for professional styling with animations and modern design
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
     .main > div {
         padding-top: 1rem;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    /* Animated background */
+    .dashboard-header {
+        background: linear-gradient(-45deg, #1B365D, #4A90E2, #667eea, #764ba2);
+        background-size: 400% 400%;
+        animation: gradientShift 8s ease infinite;
+        padding: 3rem 2rem;
+        border-radius: 20px;
+        color: white;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23ffffff" fill-opacity="0.05" points="0,200 300,0 600,100 1000,0 1000,300 700,400 400,300 0,500"/></svg>');
+        pointer-events: none;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        animation: fadeInUp 1s ease-out;
+    }
+    
+    .dashboard-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        animation: fadeInUp 1s ease-out 0.2s both;
+    }
+    
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    /* Enhanced metric cards */
+    .stMetric {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        padding: 1.5rem;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        animation: slideIn 0.6s ease-out;
+    }
+    
+    .stMetric::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #4A90E2, #667eea, #764ba2);
+        transition: height 0.3s ease;
+    }
+    
+    .stMetric:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    
+    .stMetric:hover::before {
+        height: 8px;
+    }
+    
+    .stMetric [data-testid="metric-container"] {
+        background: transparent;
     }
     
     .metric-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1rem;
-        border-radius: 12px;
+        padding: 1.5rem;
+        border-radius: 16px;
         color: white;
         text-align: center;
         margin: 0.5rem 0;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+        transform: rotate(45deg);
+        transition: all 0.5s;
+        opacity: 0;
+    }
+    
+    .metric-card:hover::before {
+        animation: shimmer 0.8s ease-in-out;
+        opacity: 1;
     }
     
     .metric-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        transform: translateY(-10px) scale(1.05);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
     }
     
     .metric-value {
-        font-size: 2rem;
-        font-weight: bold;
+        font-size: 2.5rem;
+        font-weight: 700;
         margin: 0.5rem 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
     
     .metric-label {
-        font-size: 0.9rem;
+        font-size: 1rem;
         opacity: 0.9;
+        font-weight: 500;
     }
     
-    .dashboard-header {
-        background: linear-gradient(90deg, #1B365D 0%, #4A90E2 100%);
-        padding: 2rem;
-        border-radius: 15px;
-        color: white;
-        margin-bottom: 2rem;
-        text-align: center;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-    
+    /* Enhanced section headers */
     .section-header {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 8px;
-        border-left: 4px solid #4A90E2;
-        margin: 1rem 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border-left: 6px solid #4A90E2;
+        margin: 2rem 0 1rem 0;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        animation: slideIn 0.8s ease-out;
     }
     
+    .section-header h2 {
+        margin: 0;
+        color: #1e293b;
+        font-weight: 600;
+    }
+    
+    .section-header h4 {
+        margin: 0;
+        color: #475569;
+        font-weight: 500;
+    }
+    
+    /* Enhanced filter container */
     .filter-container {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.08);
         margin-bottom: 2rem;
+        border: 1px solid rgba(255,255,255,0.5);
+        animation: fadeInUp 1s ease-out;
     }
     
+    .filter-container h3 {
+        color: #1e293b;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    /* Enhanced chat interface */
     .chat-container {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.08);
         margin: 1rem 0;
-        border: 1px solid #e0e0e0;
+        border: 1px solid rgba(255,255,255,0.5);
+        animation: fadeInUp 1.2s ease-out;
     }
     
     .sample-question {
-        background: #f0f8ff;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        margin: 0.25rem;
+        background: linear-gradient(135deg, #f0f8ff 0%, #e0f2fe 100%);
+        padding: 0.75rem 1.25rem;
+        border-radius: 25px;
+        margin: 0.5rem;
         cursor: pointer;
-        border: 1px solid #4A90E2;
+        border: 2px solid #4A90E2;
         color: #1B365D;
         font-size: 0.9rem;
-        transition: all 0.3s ease;
+        font-weight: 500;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-block;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .sample-question::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: left 0.5s;
+    }
+    
+    .sample-question:hover::before {
+        left: 100%;
     }
     
     .sample-question:hover {
-        background: #4A90E2;
+        background: linear-gradient(135deg, #4A90E2 0%, #667eea 100%);
         color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
     }
     
     .chat-message {
-        padding: 1rem;
-        margin: 0.5rem 0;
-        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        border-radius: 12px;
+        animation: slideIn 0.5s ease-out;
     }
     
     .user-message {
-        background: #e3f2fd;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
         border-left: 4px solid #2196f3;
+        border-radius: 12px 12px 4px 12px;
     }
     
     .bot-message {
-        background: #f1f8e9;
+        background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
         border-left: 4px solid #4caf50;
+        border-radius: 12px 12px 12px 4px;
     }
     
+    /* Enhanced form elements */
     .stSelectbox > div > div {
-        background-color: #f8f9fa;
-        border-radius: 8px;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        transition: all 0.3s ease;
     }
     
-    .stMetric {
-        background: white;
-        padding: 1rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    .stSelectbox > div > div:focus-within {
+        border-color: #4A90E2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
     }
     
+    .stTextInput > div > div > input {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        transition: all 0.3s ease;
+        padding: 0.75rem 1rem;
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: #4A90E2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    }
+    
+    /* Enhanced buttons */
+    .stButton > button {
+        background: linear-gradient(135deg, #4A90E2 0%, #667eea 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .stButton > button:active {
+        transform: translateY(0);
+    }
+    
+    /* Enhanced alerts */
     .alert-warning {
-        background: #fff3cd;
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 50%);
         border: 1px solid #ffeaa7;
-        border-radius: 8px;
-        padding: 1rem;
-        margin: 1rem 0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
         color: #856404;
+        box-shadow: 0 4px 20px rgba(255, 234, 167, 0.3);
+        animation: pulse 2s infinite;
     }
     
     .alert-success {
-        background: #d4edda;
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 50%);
         border: 1px solid #c3e6cb;
-        border-radius: 8px;
-        padding: 1rem;
-        margin: 1rem 0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
         color: #155724;
+        box-shadow: 0 4px 20px rgba(195, 230, 203, 0.3);
+        animation: slideIn 0.8s ease-out;
+    }
+    
+    /* Enhanced tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 1rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 12px;
+        padding: 0.5rem;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #4A90E2 0%, #667eea 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+    }
+    
+    /* Enhanced dividers */
+    hr {
+        border: none;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #4A90E2, transparent);
+        margin: 2rem 0;
+    }
+    
+    /* Loading animation */
+    .stSpinner {
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    /* Responsive enhancements */
+    @media (max-width: 768px) {
+        .dashboard-header h1 {
+            font-size: 2rem;
+        }
+        
+        .dashboard-header p {
+            font-size: 1rem;
+        }
+        
+        .metric-card {
+            margin: 0.25rem 0;
+        }
+    }
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #4A90E2, #667eea);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #667eea, #764ba2);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -384,13 +673,35 @@ def main():
         render_chatbot_interface()
 
 def render_analytics_dashboard():
-    # Sidebar filters with professional styling
+    # Enhanced sidebar with modern styling
     with st.sidebar:
         st.markdown("""
         <div class="filter-container">
-            <h3>🔍 Analytics Filters</h3>
+            <h3>🔍 Smart Analytics Filters</h3>
+            <p style="margin-top: 0.5rem; color: #64748b; font-size: 0.9rem;">
+                Apply filters to drill down into specific data segments
+            </p>
         </div>
         """, unsafe_allow_html=True)
+        
+        # Add filter status indicator
+        filters_applied = sum([
+            selected_country != 'All',
+            selected_city != 'All', 
+            selected_consultant != 'All',
+            selected_status != 'All',
+            selected_posted_year != 'All',
+            selected_placed_year != 'All'
+        ])
+        
+        if filters_applied > 0:
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); 
+                        padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;
+                        border-left: 4px solid #22c55e;">
+                <strong>✅ {filters_applied} filter(s) active</strong>
+            </div>
+            """, unsafe_allow_html=True)
     
     # Filter options
     countries = ['All'] + sorted(df['Country'].dropna().unique().tolist())
@@ -432,21 +743,36 @@ def render_analytics_dashboard():
     # Calculate KPIs
     kpis = calculate_kpis(filtered_df)
     
-    # Display KPIs in cards
-    st.header("📈 Key Performance Indicators")
+    # Display KPIs in enhanced cards
+    st.markdown("""
+    <div class="section-header">
+        <h2>📈 Key Performance Indicators</h2>
+        <p>Real-time insights into your recruitment performance</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Row 1 - Basic metrics
+    # Row 1 - Basic metrics with enhanced styling
     col1, col2, col3, col4, col5 = st.columns(5)
+    
     with col1:
-        st.metric("Total Consultants", format_number(kpis['total_consultants']))
+        delta_consultants = "+5%" if kpis['total_consultants'] > 10 else None
+        st.metric("👥 Total Consultants", format_number(kpis['total_consultants']), delta=delta_consultants)
+    
     with col2:
-        st.metric("New Clients", format_number(kpis['new_clients']))
+        delta_new = "+12%" if kpis['new_clients'] > 5 else None
+        st.metric("🆕 New Clients", format_number(kpis['new_clients']), delta=delta_new)
+    
     with col3:
-        st.metric("Old Clients", format_number(kpis['old_clients']))
+        delta_old = "+3%" if kpis['old_clients'] > 20 else None
+        st.metric("🏢 Existing Clients", format_number(kpis['old_clients']), delta=delta_old)
+    
     with col4:
-        st.metric("Total Positions", format_number(kpis['total_positions']))
+        delta_positions = "+8%" if kpis['total_positions'] > 100 else None
+        st.metric("💼 Total Positions", format_number(kpis['total_positions']), delta=delta_positions)
+    
     with col5:
-        st.metric("Active Jobs", format_number(kpis['active_jobs']))
+        delta_active = "+15%" if kpis['active_jobs'] > 50 else None
+        st.metric("🔥 Active Jobs", format_number(kpis['active_jobs']), delta=delta_active)
     
     # Row 2 - Job metrics
     col1, col2, col3, col4, col5 = st.columns(5)
@@ -502,8 +828,13 @@ def render_analytics_dashboard():
     
     st.divider()
     
-    # Charts section
-    st.header("📊 Analytics & Visualizations")
+    # Charts section with enhanced styling
+    st.markdown("""
+    <div class="section-header">
+        <h2>📊 Analytics & Visualizations</h2>
+        <p>Interactive charts and data insights for strategic decision making</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Row 1 - Revenue and Conversion charts
     col1, col2 = st.columns(2)
@@ -703,8 +1034,13 @@ def render_analytics_dashboard():
     
     st.divider()
     
-    # Tables section
-    st.header("📋 Detailed Views")
+    # Tables section with enhanced styling
+    st.markdown("""
+    <div class="section-header">
+        <h2>📋 Detailed Views</h2>
+        <p>Comprehensive data tables and export capabilities</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     tab1, tab2, tab3 = st.tabs(["Consultant Pipeline Details", "Geographical Analysis", "Raw Data Export"])
     
@@ -827,10 +1163,14 @@ def render_chatbot_interface():
                 # Add user question to chat history
                 st.session_state.chat_history.append({"role": "user", "content": question})
                 
-                # Get AI response
-                with st.spinner("Thinking..."):
+                # Get AI response with enhanced loading
+                with st.spinner("🤖 AI is analyzing your data..."):
+                    progress_bar = st.progress(0)
+                    for i in range(100):
+                        progress_bar.progress(i + 1)
                     response = chatbot.generate_response(question, df)
                     st.session_state.chat_history.append({"role": "assistant", "content": response})
+                    progress_bar.empty()
                 
                 st.rerun()
     
