@@ -683,25 +683,6 @@ def render_analytics_dashboard():
             </p>
         </div>
         """, unsafe_allow_html=True)
-        
-        # Add filter status indicator
-        filters_applied = sum([
-            selected_country != 'All',
-            selected_city != 'All', 
-            selected_consultant != 'All',
-            selected_status != 'All',
-            selected_posted_year != 'All',
-            selected_placed_year != 'All'
-        ])
-        
-        if filters_applied > 0:
-            st.markdown(f"""
-            <div style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); 
-                        padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;
-                        border-left: 4px solid #22c55e;">
-                <strong>✅ {filters_applied} filter(s) active</strong>
-            </div>
-            """, unsafe_allow_html=True)
     
     # Filter options
     countries = ['All'] + sorted(df['Country'].dropna().unique().tolist())
@@ -723,6 +704,26 @@ def render_analytics_dashboard():
     selected_status = st.sidebar.selectbox("Job Status", job_statuses)
     selected_posted_year = st.sidebar.selectbox("Posted Year-Month", posted_years)
     selected_placed_year = st.sidebar.selectbox("Candidate Placed Year", placed_years)
+    
+    # Add filter status indicator after variables are defined
+    with st.sidebar:
+        filters_applied = sum([
+            selected_country != 'All',
+            selected_city != 'All', 
+            selected_consultant != 'All',
+            selected_status != 'All',
+            selected_posted_year != 'All',
+            selected_placed_year != 'All'
+        ])
+        
+        if filters_applied > 0:
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); 
+                        padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;
+                        border-left: 4px solid #22c55e;">
+                <strong>✅ {filters_applied} filter(s) active</strong>
+            </div>
+            """, unsafe_allow_html=True)
     
     # Apply filters
     filtered_df = df.copy()
