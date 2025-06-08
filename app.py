@@ -188,29 +188,98 @@ class GroqChatbot:
         if not self.api_key:
             return "⚠️ Please configure your Groq API key to use the chatbot functionality."
         
-        # Create context from the recruitment data
+        # Create comprehensive context from the recruitment data
         context = ""
         if context_data is not None and not context_data.empty:
+            # Basic metrics
             total_records = len(context_data)
             total_consultants = context_data['Consultant_Name'].nunique()
             active_jobs = len(context_data[context_data['Job_Status'] == 'Active'])
             total_placements = len(context_data[context_data['Placement_Date'].notna()])
             avg_billing = context_data['Billing_Value'].mean()
             
+            # Advanced insights
+            top_consultants = context_data.groupby('Consultant_Name').size().nlargest(3)
+            top_cities = context_data.groupby('City').size().nlargest(3)
+            job_status_dist = context_data['Job_Status'].value_counts()
+            client_type_dist = context_data['Client_Type'].value_counts()
+            
+            # Financial insights
+            total_billing = context_data['Billing_Value'].sum()
+            max_billing = context_data['Billing_Value'].max()
+            min_billing = context_data['Billing_Value'].min()
+            
+            # Time-based insights
+            recent_placements = len(context_data[
+                (context_data['Placement_Date'].notna()) & 
+                (context_data['Placement_Date'] >= pd.Timestamp.now() - pd.Timedelta(days=30))
+            ])
+            
+            # Conversion rates
+            conversion_rate = (total_placements / total_records * 100) if total_records > 0 else 0
+            
+            # Interview insights
+            interview_scheduled = len(context_data[context_data['Interview_Status'] == 'Scheduled'])
+            interview_completed = len(context_data[context_data['Interview_Status'] == 'Completed'])
+            
             context = f"""
-            Current recruitment data context:
+            COMPREHENSIVE RECRUITMENT DATA ANALYSIS:
+            
+            BASIC METRICS:
             - Total records: {total_records}
             - Total consultants: {total_consultants}
             - Active jobs: {active_jobs}
             - Total placements: {total_placements}
+            - Recent placements (30 days): {recent_placements}
+            - Overall conversion rate: {conversion_rate:.1f}%
+            
+            FINANCIAL INSIGHTS:
+            - Total billing value: ${total_billing:,.0f}
             - Average billing value: ${avg_billing:,.0f}
+            - Highest billing: ${max_billing:,.0f}
+            - Lowest billing: ${min_billing:,.0f}
+            
+            TOP PERFORMERS:
+            - Top consultants by volume: {dict(top_consultants)}
+            - Top cities by volume: {dict(top_cities)}
+            
+            JOB STATUS DISTRIBUTION:
+            {dict(job_status_dist)}
+            
+            CLIENT TYPE DISTRIBUTION:
+            {dict(client_type_dist)}
+            
+            INTERVIEW PIPELINE:
+            - Interviews scheduled: {interview_scheduled}
+            - Interviews completed: {interview_completed}
+            
+            DATA COLUMNS AVAILABLE:
+            {list(context_data.columns)}
             """
         
-        system_prompt = f"""You are a recruitment analytics expert assistant. You help analyze recruitment data and provide insights about hiring metrics, consultant performance, and business trends.
-        
+        system_prompt = f"""You are an expert recruitment analytics consultant with deep expertise in HR metrics, talent acquisition, and business intelligence. You have access to comprehensive recruitment data and can provide detailed insights, trends, and actionable recommendations.
+
         {context}
-        
-        Please provide helpful, data-driven responses about recruitment analytics, KPIs, and insights. Keep responses concise and professional."""
+
+        CAPABILITIES:
+        - Analyze recruitment performance metrics and KPIs
+        - Identify trends and patterns in hiring data
+        - Provide actionable recommendations for improvement
+        - Compare consultant performance and suggest optimizations
+        - Analyze financial metrics and billing trends
+        - Evaluate conversion rates and pipeline efficiency
+        - Assess client relationships and market opportunities
+        - Generate insights about geographical performance
+        - Recommend process improvements and best practices
+
+        INSTRUCTIONS:
+        - Always base your responses on the actual data provided
+        - Use specific numbers and percentages when available
+        - Provide actionable insights and recommendations
+        - Explain the business impact of your findings
+        - Suggest specific next steps when appropriate
+        - Be comprehensive but concise
+        - Use data-driven language and avoid generic advice"""
         
         try:
             headers = {
@@ -244,16 +313,18 @@ chatbot = GroqChatbot()
 
 # Sample questions for the chatbot
 SAMPLE_QUESTIONS = [
-    "What are the key metrics I should focus on for recruitment success?",
-    "How can I improve my consultant conversion rates?",
-    "What factors influence time-to-hire in recruitment?",
-    "How do I identify high-potential job opportunities?",
-    "What are best practices for client relationship management?",
-    "How can I optimize my recruitment pipeline?",
-    "What metrics indicate consultant performance?",
-    "How do market trends affect billing values?",
-    "What are red flags in recruitment data?",
-    "How can I improve interview-to-offer conversion?"
+    "Analyze the top performing consultants and their success patterns",
+    "What are the conversion rate trends across different cities?",
+    "Which client types generate the highest billing values?",
+    "Identify bottlenecks in our recruitment pipeline",
+    "Compare interview completion rates by consultant",
+    "What's the correlation between job status and billing values?",
+    "Analyze seasonal trends in job placements",
+    "Which consultants need performance improvement support?",
+    "What are the most profitable job categories?",
+    "Predict which active jobs are likely to convert based on patterns",
+    "Analyze time-to-hire patterns across different regions",
+    "What factors contribute to job losses and how to prevent them?"
 ]
 
 # Load data
