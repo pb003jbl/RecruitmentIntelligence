@@ -1,0 +1,71 @@
+You are a senior Python developer and data engineer tasked with building a professional Recruitment Analytics Dashboard using Streamlit and Python.
+
+Use the provided Excel file ("Dashboard Data and Issues (For All) - MFR.xlsx") which contains candidate, job, consultant, and placement information. The goal is to create an interactive, enterprise-grade dashboard similar to the one shown in the uploaded reference image, with a modern UI and filter options.
+
+🔹 **Core Features to Implement:**
+
+1. **Filter Options at the Top:**
+   - Dropdown filters for: `Country`, `City`, `Consultant Name`, `Job Status`, `Posted Year-Month`, and `Candidate Placed Year`.
+
+2. **Top-Level Summary Metrics (KPIs):**
+   Display key figures using styled cards:
+   - Total Consultants
+   - New Clients
+   - Old Clients
+   - Total Positions
+   - Active Jobs
+   - High Potential Jobs
+   - Lost Jobs
+   - Time to Submit (Days)
+   - Submission → Interview %
+   - Submission → Rejected %
+   - Total Candidates Placed
+   - Active Clients
+   - Passive Clients
+   - Recruitment Conversion Rate %
+   - Avg Billing Value
+   - Total Value of Jobs
+   - Total Value Won
+   - Avg Time to Hire (Days)
+   - Interview → Offer %
+   - Offer → Placement %
+
+3. **Charts & Visuals:**
+   - **Pie Chart**: Revenue by City
+   - **Bar Chart**: Recruitment Conversion Rate by Consultant
+   - **Funnel Chart**: Pipeline Funnel (By Stage)
+   - **Bar Chart**: Jobs Received per Quarter/Year
+   - **Bar Chart**: Jobs Won by Quarter (Year-wise)
+   - **Bar Chart**: Total Jobs vs. Time to Hire per Consultant
+
+4. **Tabular Views:**
+   - Table 1: Consultant-wise Pipeline Details with Job Title and Interview Status
+   - Table 2: Raw data table with export to CSV/Excel
+
+5. **Advanced Capabilities:**
+   - Data aggregation logic for revenue, conversion rate, time to hire, etc.
+   - Automatic Year/Quarter calculation from dates
+   - Conditional formatting for metrics (e.g. high attrition, low conversion)
+   - Option to add dummy/simulated data to augment small datasets
+
+6. **Streamlit Features:**
+   - Use `st.cache_data` or `st.cache_resource` to optimize Excel loading
+   - Use `st.sidebar` or grid layout (`st.columns`) for filters
+   - Use `plotly`, `matplotlib`, or `altair` for rich interactive charts
+   - Include icons (via `streamlit-lottie` or `fontawesome`) for aesthetics
+   - Option to export filtered datasets as Excel or CSV
+
+7. **UI Aesthetic Guidelines:**
+   - Modern flat card UI using Streamlit + `st.markdown` + CSS
+   - Keep consistent color palette across visuals
+   - Use metrics boxes with rounded corners and shadows
+   - Responsive layout with columns and smart spacing
+
+📦 If sample data is missing, generate realistic data for:
+   - Consultant activities
+   - Candidate interviews
+   - Job pipeline stages
+   - Billing & revenue per placement
+   - Quarterly performance metrics
+
+🎯 Goal: Deliver an enterprise-ready recruitment insights dashboard that a staffing or consulting agency can use to drive decision making and hiring performance.
