@@ -362,7 +362,7 @@ def main():
     # Professional Header
     st.markdown("""
     <div class="dashboard-header">
-        <h1>🎯 Recruitment Analytics Dashboard</h1>
+        <h1>🎯 Mindfield Recruitment Analytics Dashboard</h1>
         <p>Enterprise-grade insights for recruitment agencies</p>
     </div>
     """, unsafe_allow_html=True)
