@@ -14,7 +14,7 @@ warnings.filterwarnings('ignore')
 
 from data_processor import DataProcessor
 from sample_data_generator import SampleDataGenerator
-from utils import format_number, calculate_kpis, create_funnel_chart
+from utils import format_number, calculate_kpis, create_funnel_chart, analyze_geographical_performance, create_geographical_charts
 
 # Page configuration
 st.set_page_config(
@@ -201,8 +201,23 @@ class GroqChatbot:
             # Advanced insights
             top_consultants = context_data.groupby('Consultant_Name').size().nlargest(3)
             top_cities = context_data.groupby('City').size().nlargest(3)
+            top_countries = context_data.groupby('Country').size().nlargest(3)
             job_status_dist = context_data['Job_Status'].value_counts()
             client_type_dist = context_data['Client_Type'].value_counts()
+            
+            # Geographical insights
+            country_revenue = context_data.groupby('Country')['Billing_Value'].sum().nlargest(3)
+            city_revenue = context_data.groupby('City')['Billing_Value'].sum().nlargest(3)
+            country_conversions = context_data.groupby('Country').apply(
+                lambda x: (x['Placement_Date'].notna().sum() / len(x) * 100) if len(x) > 0 else 0
+            ).nlargest(3)
+            city_conversions = context_data.groupby('City').apply(
+                lambda x: (x['Placement_Date'].notna().sum() / len(x) * 100) if len(x) > 0 else 0
+            ).nlargest(3)
+            
+            # Market penetration by geography
+            countries_with_new_clients = len(context_data[context_data['Client_Type'] == 'New']['Country'].unique())
+            cities_with_active_jobs = len(context_data[context_data['Job_Status'] == 'Active']['City'].unique())
             
             # Financial insights
             total_billing = context_data['Billing_Value'].sum()
@@ -242,6 +257,15 @@ class GroqChatbot:
             TOP PERFORMERS:
             - Top consultants by volume: {dict(top_consultants)}
             - Top cities by volume: {dict(top_cities)}
+            - Top countries by volume: {dict(top_countries)}
+            
+            GEOGRAPHICAL PERFORMANCE:
+            - Top countries by revenue: {dict(country_revenue)}
+            - Top cities by revenue: {dict(city_revenue)}
+            - Top countries by conversion rate: {dict(country_conversions)}
+            - Top cities by conversion rate: {dict(city_conversions)}
+            - Countries with new clients: {countries_with_new_clients}
+            - Cities with active jobs: {cities_with_active_jobs}
             
             JOB STATUS DISTRIBUTION:
             {dict(job_status_dist)}
@@ -314,17 +338,20 @@ chatbot = GroqChatbot()
 # Sample questions for the chatbot
 SAMPLE_QUESTIONS = [
     "Analyze the top performing consultants and their success patterns",
-    "What are the conversion rate trends across different cities?",
-    "Which client types generate the highest billing values?",
-    "Identify bottlenecks in our recruitment pipeline",
-    "Compare interview completion rates by consultant",
-    "What's the correlation between job status and billing values?",
-    "Analyze seasonal trends in job placements",
-    "Which consultants need performance improvement support?",
-    "What are the most profitable job categories?",
-    "Predict which active jobs are likely to convert based on patterns",
-    "Analyze time-to-hire patterns across different regions",
-    "What factors contribute to job losses and how to prevent them?"
+    "What are the conversion rate trends across different cities and countries?",
+    "Which geographical regions generate the highest billing values?",
+    "Compare market penetration strategies across different countries",
+    "Identify bottlenecks in our recruitment pipeline by location",
+    "Which cities have the best consultant performance ratios?",
+    "Analyze revenue concentration risks across geographical markets",
+    "What's the correlation between location and time-to-hire?",
+    "Which countries offer the best expansion opportunities?",
+    "Compare client acquisition patterns between urban and regional markets",
+    "Analyze seasonal trends in job placements by geography",
+    "What factors contribute to regional performance variations?",
+    "Which locations need additional consultant resources?",
+    "Identify geographical markets with declining performance",
+    "Analyze cost-effectiveness of operations across different regions"
 ]
 
 # Load data
@@ -460,6 +487,19 @@ def render_analytics_dashboard():
     with col5:
         st.metric("Offer → Placement %", f"{kpis['offer_placement_rate']:.1f}%")
     
+    # Row 5 - Geographical metrics
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.metric("Active Countries", format_number(kpis['active_countries']))
+    with col2:
+        st.metric("Active Cities", format_number(kpis['active_cities']))
+    with col3:
+        st.metric("Top Country Revenue", f"${kpis['top_country_revenue']:,.0f}")
+    with col4:
+        st.metric("Top City Revenue", f"${kpis['top_city_revenue']:,.0f}")
+    with col5:
+        st.metric("Country Conv. Variance", f"{kpis['country_conversion_variance']:.1f}")
+    
     st.divider()
     
     # Charts section
@@ -571,22 +611,145 @@ def render_analytics_dashboard():
         else:
             st.info("No data available for selected filters")
     
+    # Row 4 - Geographical Performance Charts
+    st.subheader("🌍 Geographical Performance Analysis")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("Revenue by Country")
+        if not filtered_df.empty:
+            country_revenue = filtered_df.groupby('Country')['Billing_Value'].sum().reset_index()
+            country_revenue = country_revenue.sort_values('Billing_Value', ascending=False)
+            
+            if not country_revenue.empty:
+                fig_country = px.bar(country_revenue, x='Country', y='Billing_Value',
+                                   title="Total Revenue by Country",
+                                   color='Billing_Value',
+                                   color_continuous_scale='Blues')
+                fig_country.update_layout(xaxis_tickangle=-45)
+                st.plotly_chart(fig_country, use_container_width=True)
+            else:
+                st.info("No country revenue data available")
+        else:
+            st.info("No data available for geographical analysis")
+    
+    with col2:
+        st.subheader("Conversion Rate by City")
+        if not filtered_df.empty:
+            city_conversion = filtered_df.groupby(['Country', 'City']).agg({
+                'Job_ID': 'count',
+                'Placement_Date': lambda x: x.notna().sum()
+            }).reset_index()
+            
+            city_conversion['Conversion_Rate'] = (
+                city_conversion['Placement_Date'] / city_conversion['Job_ID'] * 100
+            ).round(2)
+            city_conversion = city_conversion[city_conversion['Job_ID'] >= 3]  # Filter cities with at least 3 jobs
+            
+            if not city_conversion.empty:
+                fig_city_conv = px.scatter(city_conversion, 
+                                         x='Job_ID', 
+                                         y='Conversion_Rate',
+                                         color='Country',
+                                         size='Placement_Date',
+                                         hover_data=['City'],
+                                         title="City Performance: Jobs vs Conversion Rate")
+                fig_city_conv.update_layout(xaxis_title="Total Jobs", yaxis_title="Conversion Rate (%)")
+                st.plotly_chart(fig_city_conv, use_container_width=True)
+            else:
+                st.info("No sufficient city data for conversion analysis")
+        else:
+            st.info("No data available for city analysis")
+    
+    # Row 5 - Heatmap and Geographic Distribution
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("Market Penetration Heatmap")
+        if not filtered_df.empty:
+            geo_analysis = analyze_geographical_performance(filtered_df)
+            if 'country_performance' in geo_analysis and not geo_analysis['country_performance'].empty:
+                country_perf = geo_analysis['country_performance']
+                
+                fig_heatmap = px.imshow(
+                    country_perf[['Total_Jobs', 'Placements', 'Conversion_Rate', 'Avg_Billing']].T,
+                    x=country_perf['Country'],
+                    y=['Total Jobs', 'Placements', 'Conversion Rate', 'Avg Billing'],
+                    aspect="auto",
+                    color_continuous_scale='RdYlBu_r',
+                    title="Country Performance Heatmap"
+                )
+                st.plotly_chart(fig_heatmap, use_container_width=True)
+            else:
+                st.info("No data available for market penetration analysis")
+        else:
+            st.info("No data available for heatmap")
+    
+    with col2:
+        st.subheader("Regional Distribution")
+        if not filtered_df.empty:
+            regional_dist = filtered_df.groupby(['Country', 'Job_Status']).size().reset_index(name='Count')
+            
+            if not regional_dist.empty:
+                fig_region = px.sunburst(regional_dist, 
+                                       path=['Country', 'Job_Status'], 
+                                       values='Count',
+                                       title="Regional Job Status Distribution")
+                st.plotly_chart(fig_region, use_container_width=True)
+            else:
+                st.info("No regional distribution data available")
+        else:
+            st.info("No data available for regional analysis")
+    
     st.divider()
     
     # Tables section
     st.header("📋 Detailed Views")
     
-    tab1, tab2 = st.tabs(["Consultant Pipeline Details", "Raw Data Export"])
+    tab1, tab2, tab3 = st.tabs(["Consultant Pipeline Details", "Geographical Analysis", "Raw Data Export"])
     
     with tab1:
         st.subheader("Consultant-wise Pipeline Details")
         if not filtered_df.empty:
             pipeline_details = filtered_df[['Consultant_Name', 'Job_Title', 'Candidate_Name', 
-                                          'Interview_Status', 'Job_Status', 'City', 'Billing_Value']].copy()
+                                          'Interview_Status', 'Job_Status', 'Country', 'City', 'Billing_Value']].copy()
             pipeline_details['Billing_Value'] = pipeline_details['Billing_Value'].apply(lambda x: f"${x:,.0f}" if pd.notna(x) else "N/A")
             st.dataframe(pipeline_details, use_container_width=True)
         else:
             st.info("No pipeline data available for selected filters")
+    
+    with tab2:
+        st.subheader("🌍 Geographical Performance Analysis")
+        if not filtered_df.empty:
+            geo_analysis = analyze_geographical_performance(filtered_df)
+            
+            # Country performance table
+            if 'country_performance' in geo_analysis and not geo_analysis['country_performance'].empty:
+                st.write("**Country Performance Summary:**")
+                country_perf = geo_analysis['country_performance'].copy()
+                country_perf['Total_Revenue'] = country_perf['Total_Revenue'].apply(lambda x: f"${x:,.0f}")
+                country_perf['Avg_Billing'] = country_perf['Avg_Billing'].apply(lambda x: f"${x:,.0f}")
+                country_perf['Revenue_per_Consultant'] = country_perf['Revenue_per_Consultant'].apply(lambda x: f"${x:,.0f}")
+                st.dataframe(country_perf, use_container_width=True)
+            
+            st.divider()
+            
+            # City performance table
+            if 'city_performance' in geo_analysis and not geo_analysis['city_performance'].empty:
+                st.write("**City Performance Summary:**")
+                city_perf = geo_analysis['city_performance'].copy()
+                city_perf['Total_Revenue'] = city_perf['Total_Revenue'].apply(lambda x: f"${x:,.0f}")
+                city_perf['Avg_Billing'] = city_perf['Avg_Billing'].apply(lambda x: f"${x:,.0f}")
+                st.dataframe(city_perf, use_container_width=True)
+            
+            st.divider()
+            
+            # Market penetration analysis
+            if 'market_penetration' in geo_analysis and not geo_analysis['market_penetration'].empty:
+                st.write("**Market Penetration Analysis:**")
+                st.dataframe(geo_analysis['market_penetration'], use_container_width=True)
+        else:
+            st.info("No geographical data available for analysis")
     
     with tab2:
         st.subheader("Raw Data with Export Options")
