@@ -44,5 +44,4 @@ args = "uv add plotly openpyxl"
 localPort = 5000
 externalPort = 80
 
-[[secrets]]
-GROQ_API_KEY='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'
+
