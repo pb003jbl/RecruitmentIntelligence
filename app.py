@@ -11,10 +11,15 @@ import os
 import requests
 import json
 warnings.filterwarnings('ignore')
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from data_processor import DataProcessor
 from sample_data_generator import SampleDataGenerator
 from utils import format_number, calculate_kpis, create_funnel_chart, analyze_geographical_performance, create_geographical_charts
+
+
 
 # Page configuration
 st.set_page_config(
@@ -784,8 +789,7 @@ def load_data():
 # Groq API Integration
 class GroqChatbot:
     def __init__(self):
-        # self.api_key = os.getenv("GROQ_API_KEY")
-        self.api_key = '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'
+        self.api_key = os.getenv("GROQ_API_KEY")
         self.base_url = "https://api.groq.com/openai/v1/chat/completions"
         
     def generate_response(self, question, context_data=None):
